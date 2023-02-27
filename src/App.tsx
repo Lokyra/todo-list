@@ -1,4 +1,5 @@
 import { useState } from 'react'
+import Task from './components/Task'
 
 function App() {
 
@@ -32,8 +33,6 @@ function App() {
 
       setTasks(copyTasksUpt)
 
-
-
   }
 
   
@@ -43,9 +42,7 @@ function App() {
     <h1>Todo List</h1>
     <ul>
         {tasks.map((task: any) => (
-         <li key={task.id}>{task.nom}{" "}
-         <button onClick={() => handleDelete(task.id)}>X</button>
-         </li>
+        <Task task={task} onTaskChange={handleDelete}/>
         ))}
     </ul>
     <form action="submit" onSubmit={handleSubmit}>
