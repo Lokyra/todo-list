@@ -1,59 +1,91 @@
 import { useState } from 'react'
-import Task from './components/Task'
+import {Task} from './components/Task'
+
+type TaskType = {
+    id: number  
+    nom: string
+}
 
 function App() {
 
 
-  const [tasks, setTasks] = useState([])
+  const [tasks, setTasks] = useState<TaskType[]>([])
+  const [task, setTask] = useState<string>('')
+  const [isEditting, setIsEditting] = useState(false)
+  const [editingTask, setEditingTask] = useState<TaskType>()
 
-  const [newTask, setNewTask] = useState('')
-
-  const handleSubmit = (event: any) => {
-      event.preventDefault()
-      const copyTasks : any[] = [...tasks]
+  const handleSubmit = () => {
+      if(isEditting){
+        const currentTask = tasks.find(t => t.id === editingTask?.id)
+        if(!currentTask) {
+            setIsEditting(false)
+            return
+        }
+        const newTasks = tasks.map(t => {
+            if(t.id === currentTask?.id){
+                return {...t, nom: task}
+            } else {
+                return t
+            }
+        })
+        setTasks(newTasks)
+        setTask('')
+        setIsEditting(false)
+      } else {
+      const copyTasks = [...tasks]
 
       const id = tasks.length + 1
-      const nom = newTask
+      const nom = task
 
       copyTasks.push({id , nom})
 
       setTasks(copyTasks)
-      setNewTask('')
+      setTask('')
+      }
+
   }
 
-  const handleChange = (event: any) => {
-      setNewTask(event.target.value)
+  const handleChange = (event: React.ChangeEvent<HTMLInputElement>) => {
+      setTask(event.target.value)
   }
 
   const handleDelete = (id: number) => {
 
-      const copyTasks : any[] = [...tasks]
+      const copyTasks = [...tasks]
 
-      const copyTasksUpt = copyTasks.filter((task: any) => task.id !== id)
+      const copyTasksUpt = copyTasks.filter((task) => task.id !== id)
 
       setTasks(copyTasksUpt)
 
   }
 
+  const handleEdit = (id: number) => {
+    const task = tasks.find(task => task.id === id) as TaskType
+    setTask(task.nom)
+    setIsEditting(true)
+    setEditingTask(task)
+  }
   
 
   return (
   <div>
     <h1>Todo List</h1>
     <ul>
-        {tasks.map((task: any) => (
-        <Task task={task} onTaskChange={handleDelete}/>
+        {tasks.map((task) => (
+            <div style={{display: "flex"}}>
+                <Task task={task} onTaskChange={handleDelete}/>
+                <button onClick={() => handleEdit(task.id)}>Edit</button>
+            </div>
         ))}
     </ul>
-    <form action="submit" onSubmit={handleSubmit}>
+
         <input 
-            value={newTask} 
+            value={task} 
             type="text" 
             placeholder="Ajouter une tache" 
             onChange={handleChange}
         />
-        <button type="submit">Ajouter +</button>
-    </form>
+        <button onClick={handleSubmit} type="submit">{isEditting ? 'Edit': 'Add'}</button>
   </div>
   )
 }
